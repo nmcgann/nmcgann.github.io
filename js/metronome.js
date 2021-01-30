@@ -100,6 +100,14 @@ function play() {
       var buffer = audioContext.createBuffer(1, 1, 22050);
       var node = audioContext.createBufferSource();
       node.buffer = buffer;
+	  
+		// Connect the source to the gain node.
+		node.connect(gainNode);
+		// Connect the gain node to the destination.
+		gainNode.connect(audioContext.destination);
+		  
+	  
+	  //node.connect(audioContext.destination); //nm added
       node.start(0);
       unlocked = true;
     }
