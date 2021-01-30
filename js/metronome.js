@@ -28,7 +28,7 @@ var noteCount = 0;
 
 var sequence = 0; 			// 0=none,1=cycle of 4ths, 2=random
 var isMuted = false;      	// Are we currently muted?
-var gainNode = null;
+var gainNode = null;		//mute control
 
 // First, let's shim the requestAnimationFrame API, with a setTimeout fallback
 window.requestAnimFrame = (function(){
@@ -101,13 +101,6 @@ function play() {
       var node = audioContext.createBufferSource();
       node.buffer = buffer;
 	  
-		// Connect the source to the gain node.
-		node.connect(gainNode);
-		// Connect the gain node to the destination.
-		gainNode.connect(audioContext.destination);
-		  
-	  
-	  //node.connect(audioContext.destination); //nm added
       node.start(0);
       unlocked = true;
     }
@@ -223,7 +216,7 @@ function init(){
     canvasContext.strokeStyle = "#ffffff";
     canvasContext.lineWidth = 2;
 
-//NM new
+//NM new - add the note name display field
     noteDisplay = document.createElement( 'div' );
     noteDisplay.className = "notedisplay";
     document.body.appendChild( noteDisplay );
