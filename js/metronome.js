@@ -164,8 +164,9 @@ function draw() {
 			} else { //none
 				noteDisplay.innerHTML = "";
 			}
-
-			if(++noteCount >= notesCyc4.length) { //all sequences same length
+			
+			noteCount++;
+			if(noteCount >= notesCyc4.length) { //all sequences same length
 				noteCount = 0;
 				shuffleArray(notesRand);
 				//console.log(notesRand);
