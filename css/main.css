@@ -41,15 +41,18 @@
 }
 
 #showTempo { 
-	display: inline-block;
-	width: 45px; 
+	/*display: inline-block;*/
+	width: 45px;
+	font-size: 90%;
 }
 
 #showSwing { 
-	display: inline-block;
+	/*display: inline-block;*/
 	width: 40px; 
 }
-
+#resSelect, #seqSelect{
+	width: 150px;
+}
 .notedisplay {
 	font-family:arial;
 	text-align: center;
@@ -58,7 +61,7 @@
 }
 
 * {
-    -webkit-user-select: none;
+    /*-webkit-user-select: none;*/
 }
 
 body, html {

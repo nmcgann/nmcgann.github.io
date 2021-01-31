@@ -28,7 +28,7 @@ var noteCount = 0;
 
 var sequence = 0; 			// 0=none,1=cycle of 4ths, 2=random
 var isMuted = false;      	// Are we currently muted?
-var gainNode = null;		//mute control
+var gainNode = null;
 
 // First, let's shim the requestAnimationFrame API, with a setTimeout fallback
 window.requestAnimFrame = (function(){
@@ -100,7 +100,6 @@ function play() {
       var buffer = audioContext.createBuffer(1, 1, 22050);
       var node = audioContext.createBufferSource();
       node.buffer = buffer;
-	  
       node.start(0);
       unlocked = true;
     }
@@ -203,6 +202,15 @@ function mute() { //mute event  - zeros out the gain node, or sets to full depen
     }
 }
 
+function updateTempo(){
+	tempo = event.target.value; 
+	document.getElementById('showTempo').value = tempo;
+}
+function updateTempoSlider(){
+	tempo = event.target.value; 
+	document.getElementById('tempo').value = tempo;
+}
+
 function init(){
     var container = document.createElement( 'div' );
 
@@ -216,7 +224,7 @@ function init(){
     canvasContext.strokeStyle = "#ffffff";
     canvasContext.lineWidth = 2;
 
-//NM new - add the note name display field
+//NM new
     noteDisplay = document.createElement( 'div' );
     noteDisplay.className = "notedisplay";
     document.body.appendChild( noteDisplay );
@@ -231,7 +239,8 @@ function init(){
 	element1.selectedIndex  = 0;
 	element1 = document.getElementById('tempo');	
 	element1.value = tempo;
-	
+	element1 = document.getElementById('showTempo');
+	element1.value = tempo;
 //
 
     // NOTE: THIS RELIES ON THE MONKEYPATCH LIBRARY BEING LOADED FROM
