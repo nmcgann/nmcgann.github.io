@@ -28,7 +28,12 @@ var noteCount = 0;
 
 var sequence = 0; 			// 0=none,1=cycle of 4ths, 2=random
 var isMuted = false;      	// Are we currently muted?
-var gainNode = null;
+var muteNode = null;
+var masterGainNode = null;
+var bufferLoader = null; 	//audio sample data loader
+var audioBuffers = [];
+var audioIsLoaded = false;
+var audioFilesArr = ["hi_click.wav", "low_click.wav"]; //first beat sound, other beats sound
 
 // First, let's shim the requestAnimationFrame API, with a setTimeout fallback
 window.requestAnimFrame = (function(){
@@ -63,26 +68,57 @@ function scheduleNote( beatNumber, time ) {
     if ( (noteResolution==0) && (beatNumber%4))
         return; // we're not playing non-quarter 8th notes
 
-    // create an oscillator
-    var osc = audioContext.createOscillator();
-    //osc.connect( audioContext.destination );
-	
-//NM added mute control
-	// Connect the source to the gain node.
-	osc.connect(gainNode);
-	// Connect the gain node to the destination.
-	gainNode.connect(audioContext.destination);
+	if(!audioIsLoaded){
+		//metronome sounds not loaded
+		// create an oscillator
+		var osc = audioContext.createOscillator();
+		//osc.connect( audioContext.destination );
+		
+	//NM added mute control
+		// Connect the source to the gain node.
+		osc.connect(muteNode);
+		muteNode.connect(masterGainNode);
+		// Connect the gain node to the destination.		
+		masterGainNode.connect(audioContext.destination);	
 
-	
-    if (beatNumber % 16 === 0)    // beat 0 == high pitch
-        osc.frequency.value = 880.0;
-    else if (beatNumber % 4 === 0 )    // quarter notes = medium pitch
-        osc.frequency.value = 440.0;
-    else                        // other 16th notes = low pitch
-        osc.frequency.value = 220.0;
+		
+		if (beatNumber % 16 === 0)    // beat 0 == high pitch
+			osc.frequency.value = 880.0;
+		else if (beatNumber % 4 === 0 )    // quarter notes = medium pitch
+			osc.frequency.value = 440.0;
+		else                        // other 16th notes = low pitch
+			osc.frequency.value = 220.0;
 
-    osc.start( time );
-    osc.stop( time + noteLength );
+		osc.start( time );
+		osc.stop( time + noteLength );
+		
+	}else {
+		//metronome sounds are loaded
+		var note = audioContext.createBufferSource();
+		
+		if (beatNumber % 16 === 0){    // beat 0 == high pitch
+			//osc.frequency.value = 880.0;
+			note.buffer = audioBuffers[0];
+
+		} else if (beatNumber % 4 === 0 ) {   // quarter notes = medium pitch
+			//osc.frequency.value = 440.0;
+			note.buffer = audioBuffers[1];
+		}
+		else {                       // other 16th notes = low pitch
+			//osc.frequency.value = 220.0;
+			note.buffer = audioBuffers[1];
+		}
+		
+		note.connect(muteNode);
+		muteNode.connect(masterGainNode);
+		// Connect the gain node to the destination.		
+		masterGainNode.connect(audioContext.destination);	
+
+		note.start( time );
+		//hiClick.stop( time + noteLength );
+
+	}	
+	
 }
 
 function scheduler() {
@@ -94,7 +130,7 @@ function scheduler() {
     }
 }
 
-function play() {
+function play(element) {
     if (!unlocked) {
       // play silent buffer to unlock the audio
       var buffer = audioContext.createBuffer(1, 1, 22050);
@@ -110,17 +146,19 @@ function play() {
         current16thNote = 0;
         nextNoteTime = audioContext.currentTime;
 		//console.log(nextNoteTime);
-		nextNoteTime += 0.1; //NM added to fix problem with first note being clipped
+		nextNoteTime += 0.1; //NM added empirical delay to fix problem with first note being clipped
 		
         timerWorker.postMessage("start");
 		
 		//NM added
 		noteCount = 0;
 		//
-        return "stop";
+        //return "stop";
+		element.innerHTML = "stop";
     } else {
         timerWorker.postMessage("stop");
-        return "play";
+        //return "play";
+		element.innerHTML = "play";
     }
 }
 
@@ -190,25 +228,53 @@ function shuffleArray(array) {
     }
 }
 //NM added
-function mute() { //mute event  - zeros out the gain node, or sets to full depending on state
+function mute(element) { //mute event  - zeros out the gain node, or sets to full depending on state
     isMuted = !isMuted;
 
     if (isMuted) {
- 		gainNode.gain.value = 0;
-		return "unmute";
+ 		muteNode.gain.value = 0;
+		//return "unmute";
+		element.innerHTML = "unmute";
     } else {
-		gainNode.gain.value = 1;
-		return "mute";
+		muteNode.gain.value = 1;
+		//return "mute";
+		element.innerHTML = "mute";
     }
 }
 
-function updateTempo(){
-	tempo = event.target.value; 
+function changeVolume(element){
+	var volume = element.value;
+	var fraction = parseInt(element.value) / parseInt(element.max);
+	// Let's use an x*x curve (x-squared) since simple linear (x) does not
+	// sound as good.
+	masterGainNode.gain.value = fraction * fraction;
+	//console.log("mvol = " + (fraction * fraction));
+}
+
+function updateTempo(element){
+	tempo = parseInt(element.value); 
 	document.getElementById('showTempo').value = tempo;
 }
-function updateTempoSlider(){
-	tempo = event.target.value; 
+function updateTempoSlider(element){
+	tempo = parseInt(element.value);
 	document.getElementById('tempo').value = tempo;
+}
+
+function changeResolution(element){
+	noteResolution = element.selectedIndex;
+}
+
+function changeSequence(element){
+	sequence = element.selectedIndex;
+}
+
+function finishedLoadingAudio(bufferList){
+	// save loaded audio
+    audioBuffers = bufferList.slice();
+	//console.log(audioBuffers);
+	audioIsLoaded = true;
+	
+	console.log("finishedLoadingAudio");
 }
 
 function init(){
@@ -233,6 +299,7 @@ function init(){
 	
 	shuffleArray(notesRand);
 	
+	//init controls
 	var element1 = document.getElementById('resSelect');
 	element1.selectedIndex  = 0;
 	element1 = document.getElementById('seqSelect');
@@ -241,6 +308,9 @@ function init(){
 	element1.value = tempo;
 	element1 = document.getElementById('showTempo');
 	element1.value = tempo;
+	element1 = document.getElementById('mastervol');
+	element1.value = 100; //max vol
+	
 //
 
     // NOTE: THIS RELIES ON THE MONKEYPATCH LIBRARY BEING LOADED FROM
@@ -252,10 +322,21 @@ function init(){
 
     // if we wanted to load audio files, etc., this is where we should do it.
 
+	bufferLoader = new BufferLoader(
+        audioContext,
+        audioFilesArr,
+        finishedLoadingAudio
+    );
+
+	bufferLoader.load(); //load all the audio files
+
+
 //NM added mute(vol) control
 	// Create a gain node.
-	gainNode = audioContext.createGain();
-	gainNode.gain.value = 1; //default to full
+	muteNode = audioContext.createGain();
+	muteNode.gain.value = 1; //default to unmuted
+	masterGainNode = audioContext.createGain();
+	masterGainNode.gain.value = 1; //default to full
 
     window.onorientationchange = resetCanvas;
     window.onresize = resetCanvas;

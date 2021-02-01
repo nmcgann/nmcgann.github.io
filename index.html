@@ -6,18 +6,19 @@
     <title>Metronome</title>
     <link rel="stylesheet" href="css/main.css">
     <script src="//cwilso.github.io/AudioContext-MonkeyPatch/AudioContextMonkeyPatch.js"></script>
+	<script type="text/javascript" src="js/buffer-loader.js"></script>
     <script src="js/metronome.js"></script>
-  </head>
+ </head>
   <body>
-    <!--<a href="https://github.com/cwilso/metronome" style="position: absolute; top: -5px; right: 15px;">Fork me on GitHub</a>-->
+     <!--<a href="https://github.com/cwilso/metronome" style="position: absolute; top: -5px; right: 15px;">Fork me on GitHub</a>-->
     <div class="controls">
-      <div><a class="play" onclick="this.innerText = play();">play</a></div>
-      <div id="tempoBox">Tempo: <input id="showTempo" type="text" onchange="updateTempoSlider()">BPM <input id="tempo" type="range" min="30.0" max="160.0" step="1" value="120" style="height: 20px; width: 200px" onInput="updateTempo()"></div>
-      <div>Resolution:<select id="resSelect" onchange="noteResolution = this.selectedIndex;"><option>Quarter notes<option>8th notes<option>16th notes</select></div>
-      <div>Sequence:<select id="seqSelect" onchange="sequence = this.selectedIndex;"><option>None<option>Cyc 4ths<option>Random</select></div>
+      <div><a class="play" onclick="play(this);">play</a></div>
+      <div id="tempoBox">Tempo: <input id="showTempo" type="text" onchange="updateTempoSlider(this);">BPM <input id="tempo" type="range" min="30.0" max="180.0" step="1" value="" style="height: 30px; width: 250px" onInput="updateTempo(this);"></div>
+      <div>Resolution:<select id="resSelect" onchange="changeResolution(this);"><option>Quarter notes<option>8th notes<option>16th notes</select></div>
+      <div>Sequence:<select id="seqSelect" onchange="changeSequence(this);"><option>None<option>Cyc 4ths<option>Random</select></div>
     </div>
 	<div class="controls">
-	<div><a class="play" onclick="this.innerText = mute();">mute</a></div>
+	<div><a class="play" onclick="mute(this);">mute</a> Vol:<input id="mastervol" type="range" min="0" max="100" style="height: 30px; width: 250px" oninput="changeVolume(this);"></div>
 	</div>
    </body>
 </html>
