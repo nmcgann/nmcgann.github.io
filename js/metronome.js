@@ -146,12 +146,16 @@ function play(element) {
 		//audioContext.resume(); //doesnt fix problem in ios safari
 		//kill the old audiocontext and make a new one
 		audioContext.close();
+		muteNode = null;
+		masterGainNode = null;
 		audioContext = new AudioContext();
 		muteNode = audioContext.createGain();
-		muteNode.gain.value = (isMuted) ? 0 : 1;
 		masterGainNode = audioContext.createGain();
-		masterGainNode.gain.value = calcVolumeLaw(parameters.mastervol, maxSlider);
 	}
+	
+		muteNode.gain.value = (isMuted) ? 0 : 1;
+		masterGainNode.gain.value = calcVolumeLaw(parameters.mastervol, maxSlider);
+	
 //
     if (!unlocked) {
       // play silent buffer to unlock the audio
@@ -410,9 +414,9 @@ function init(){
 //NM added mute(vol) control
 	// Create a gain node.
 	muteNode = audioContext.createGain();
-	muteNode.gain.value = 1; //default to unmuted
+	//muteNode.gain.value = 1; //default to unmuted
 	masterGainNode = audioContext.createGain();
-	masterGainNode.gain.value = 1; //default to full
+	//masterGainNode.gain.value = 1; //default to full
 
     window.onorientationchange = resetCanvas;
     window.onresize = resetCanvas;
