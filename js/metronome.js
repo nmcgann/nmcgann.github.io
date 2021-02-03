@@ -34,6 +34,7 @@ var bufferLoader = null; 	//audio sample data loader
 var audioBuffers = [];
 var audioIsLoaded = false;
 var audioFilesArr = ["hi_click.wav", "low_click.wav"]; //first beat sound, other beats sound
+var maxSlider = 100;
 
 var parameters = {	//the control values/options
 	"resSelect" : 	0,		// 2 == 16th, 1 == 8th, 0 == quarter note **NM changed 16th and quarter
@@ -142,14 +143,14 @@ function play(element) {
 //NM debug
 	if(audioContext.state === 'interrupted' || 
 		audioContext.state === 'suspended') { //pick up ios interrupted problem when switching tabs
-		//audioContext.resume();
-		
+		//audioContext.resume(); //doesnt fix problem in ios safari
+		//kill the old audiocontext and make a new one
 		audioContext.close();
 		audioContext = new AudioContext();
 		muteNode = audioContext.createGain();
-		muteNode.gain.value = 1; //default to unmuted
+		muteNode.gain.value = (isMuted) ? 0 : 1;
 		masterGainNode = audioContext.createGain();
-		masterGainNode.gain.value = 1; //default to full
+		masterGainNode.gain.value = calcVolumeLaw(parameters.mastervol, maxSlider);
 	}
 //
     if (!unlocked) {
@@ -266,12 +267,20 @@ function mute(element) { //mute event  - zeros out the gain node, or sets to ful
 function changeVolume(element){
 	parameters.mastervol = parseInt(element.value);
 
-	var fraction = parameters.mastervol / parseInt(element.max);
+	//var fraction = parameters.mastervol / parseInt(element.max);
 	// Let's use an x*x curve (x-squared) since simple linear (x) does not
 	// sound as good.
-	masterGainNode.gain.value = fraction * fraction;
+	masterGainNode.gain.value = calcVolumeLaw(parameters.mastervol, maxSlider);
 	//console.log("mvol = " + (fraction * fraction));
 	updateSavedParameters();	
+}
+
+function calcVolumeLaw(slider, maxSlider){
+	var fraction = slider / maxSlider;
+	// Let's use an x*x curve (x-squared) since simple linear (x) does not
+	// sound as good.
+
+	return fraction * fraction;
 }
 
 function updateTempo(element){
@@ -349,8 +358,8 @@ function setParameters(){
 	
 	element1 = document.getElementById('mastervol');
 	element1.value = parameters.mastervol;
-
 	
+	maxSlider = parseInt(element1.max);
 }
 
 function init(){
