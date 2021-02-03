@@ -140,7 +140,8 @@ function scheduler() {
 function play(element) {
 	
 //NM debug
-	if(audioContext.state === 'interrupted') { //pick up ios interrupted problem when switching tabs
+	if(audioContext.state === 'interrupted' || 
+		audioContext.state === 'suspended') { //pick up ios interrupted problem when switching tabs
 		audioContext.resume();
 	}
 //
