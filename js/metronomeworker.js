@@ -6,7 +6,7 @@ self.onmessage = function(e){
 
 	if (e.data == "start") {
 		console.log("starting");
-		timerID = setInterval( function(){postMessage("tick");}, interval)
+		timerID = setInterval( function(){self.postMessage("tick");}, interval)
 	}
 	else if (e.data.interval) {
 		console.log("setting interval");
@@ -14,7 +14,7 @@ self.onmessage = function(e){
 		console.log("interval = " + interval);
 		if (timerID) {
 			clearInterval(timerID);
-			timerID = setInterval( function(){postMessage("tick");}, interval)
+			timerID = setInterval( function(){self.postMessage("tick");}, interval)
 		}
 	}
 	else if (e.data == "stop") {
@@ -24,4 +24,4 @@ self.onmessage = function(e){
 	}
 };
 
-postMessage('metronomeworker.js loaded');
+self.postMessage('metronomeworker.js loaded');
