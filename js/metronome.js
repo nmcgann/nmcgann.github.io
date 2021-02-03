@@ -371,6 +371,8 @@ function init(){
     // spec-compliant, and work on Chrome, Safari and Firefox.
 
     audioContext = new AudioContext();
+	//test
+	audioContext.onstatechange = function(){ console.log("AudioContext: " + audioContext.state);}
 
     // if we wanted to load audio files, etc., this is where we should do it.
 
