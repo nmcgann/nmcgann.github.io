@@ -138,6 +138,12 @@ function scheduler() {
 }
 
 function play(element) {
+	
+//NM debug
+	if(audioContext.state === 'interrupted') { //pick up ios interrupted problem when switching tabs
+		audioContext.resume();
+	}
+//
     if (!unlocked) {
       // play silent buffer to unlock the audio
       var buffer = audioContext.createBuffer(1, 1, 22050);
