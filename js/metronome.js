@@ -142,7 +142,14 @@ function play(element) {
 //NM debug
 	if(audioContext.state === 'interrupted' || 
 		audioContext.state === 'suspended') { //pick up ios interrupted problem when switching tabs
-		audioContext.resume();
+		//audioContext.resume();
+		
+		audioContext.close();
+		audioContext = new AudioContext();
+		muteNode = audioContext.createGain();
+		muteNode.gain.value = 1; //default to unmuted
+		masterGainNode = audioContext.createGain();
+		masterGainNode.gain.value = 1; //default to full
 	}
 //
     if (!unlocked) {
