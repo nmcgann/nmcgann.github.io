@@ -191,8 +191,8 @@ function play(element) {
 function resetCanvas (e) {
     // resize the canvas - but remember - this clears the canvas too.
     canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
+    canvas.height = window.innerHeight / 3;
+	noteDisplay.innerHTML = "";
     //make sure we scroll to the top left.
     window.scrollTo(0,0); 
 }
