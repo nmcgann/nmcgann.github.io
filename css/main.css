@@ -50,14 +50,19 @@
 	/*display: inline-block;*/
 	width: 40px; 
 }
-#resSelect, #seqSelect{
-	width: 150px;
+select#resSelect>option, select#seqSelect>option{
+	/*width: 150px;*/
+	display:block;
 }
 .notedisplay {
 	font-family:arial;
 	text-align: center;
 	vertical-align: middle;
 	font-size: 10em;
+}
+
+select#accBeatSelect>option, select#normBeatSelect>option{
+	display:block;
 }
 
 * {

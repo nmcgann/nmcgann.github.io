@@ -33,14 +33,24 @@ var masterGainNode = null;
 var bufferLoader = null; 	//audio sample data loader
 var audioBuffers = [];
 var audioIsLoaded = false;
-var audioFilesArr = ["hi_click.wav", "low_click.wav"]; //first beat sound, other beats sound
+var audioFilesArr = [
+	{"name" : "Hi Click", "url": "audio/hi_click.wav"}, 
+	{"name" : "Low Click", "url": "audio/low_click.wav"},
+	{"name" : "Clave", "url": "audio/clave.wav"},
+	{"name" : "Cowbell", "url": "audio/cowbell.wav"},
+	{"name" : "Rim", "url": "audio/rim.wav"},
+	{"name" : "Sticks", "url": "audio/sticks.wav"}
+
+];
 var maxSlider = 100;
 
 var parameters = {	//the control values/options
 	"resSelect" : 	0,		// 2 == 16th, 1 == 8th, 0 == quarter note **NM changed 16th and quarter
 	"seqSelect" : 	0,		// 0=none, 1=cycle of 4ths, 2=random
 	"tempo"		:	120,	// tempo (in beats per minute)
-	"mastervol" :	100		// master volume %
+	"mastervol" :	100,		// master volume %
+	"accentedBeat" : 1,
+	"normalBeat" :   0
 };
 
 // First, let's shim the requestAnimationFrame API, with a setTimeout fallback
@@ -106,15 +116,15 @@ function scheduleNote( beatNumber, time ) {
 		
 		if (beatNumber % 16 === 0){ // beat 0
 			//osc.frequency.value = 880.0;
-			note.buffer = audioBuffers[0];
+			note.buffer = audioBuffers[parameters.accentedBeat];
 
 		} else if (beatNumber % 4 === 0 ) { // quarter notes
 			//osc.frequency.value = 440.0;
-			note.buffer = audioBuffers[1];
+			note.buffer = audioBuffers[parameters.normalBeat];
 		}
 		else { // other 16th notes
 			//osc.frequency.value = 220.0;
-			note.buffer = audioBuffers[1];
+			note.buffer = audioBuffers[parameters.normalBeat];
 		}
 		
 		note.connect(muteNode);
@@ -308,6 +318,16 @@ function changeSequence(element){
 	updateSavedParameters();	
 }
 
+function changeAccentBeat(element){
+	parameters.accentedBeat  = parseInt(element.selectedIndex);
+	updateSavedParameters();
+}
+
+function changeNormalBeat(element){
+	parameters.normalBeat  = parseInt(element.selectedIndex);
+	updateSavedParameters();	
+}
+
 function finishedLoadingAudio(bufferList){
 	// save loaded audio
     audioBuffers = bufferList.slice();
@@ -366,6 +386,34 @@ function setParameters(){
 	maxSlider = parseInt(element1.max);
 }
 
+function buildNoteSoundSelects(){
+
+	var theAccSelect = document.getElementById("accBeatSelect"); 
+	var theNormSelect = document.getElementById("normBeatSelect"); 
+	
+	if(audioFilesArr.length > 0){
+		var nameArray = audioFilesArr.map(function(a) {return a.name;}); //get names for select
+		//console.log(nameArray);
+		for(var i = 0; i < nameArray.length; i++){
+			var el = document.createElement("option");
+			//el.text = nameArray[i];
+			el.text = nameArray[i];
+			el.value = i;
+			theAccSelect.add(el);
+			var copyElement = el.cloneNode(true);
+			theNormSelect.add(copyElement);
+			//console.log(el);
+		}
+
+		theAccSelect.selectedIndex  = parameters.accentedBeat;
+		theNormSelect.selectedIndex  = parameters.normalBeat;
+		//unhide the controls
+		theAccSelect.parentNode.style.visibility = 'inherit';
+		theNormSelect.parentNode.style.visibility = 'inherit';
+	}
+	
+}
+
 function init(){
     var container = document.createElement( 'div' );
 
@@ -403,14 +451,18 @@ function init(){
 
     // if we wanted to load audio files, etc., this is where we should do it.
 
+	var urlArray = audioFilesArr.map(function(a) {return a.url;}); //get urls for loader
+
 	bufferLoader = new BufferLoader(
         audioContext,
-        audioFilesArr,
+        urlArray,
         finishedLoadingAudio
     );
 
 	bufferLoader.load(); //load all the audio files
 
+	buildNoteSoundSelects();
+	
 //NM added mute(vol) control
 	// Create a gain node for mute
 	muteNode = audioContext.createGain();

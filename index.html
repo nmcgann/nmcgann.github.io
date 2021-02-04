@@ -19,6 +19,8 @@
     </div>
 	<div class="controls">
 	<div><a class="play" onclick="mute(this);">mute</a> Vol:<input id="mastervol" type="range" min="0" max="100" style="height: 30px; width: 250px" oninput="changeVolume(this);"></div>
+	<div style="visibility:hidden">Accent:<select id="accBeatSelect" onchange="changeAccentBeat(this);"></select></div>	
+	<div style="visibility:hidden">Normal:<select id="normBeatSelect" onchange="changeNormalBeat(this);"></select></div>	
 	</div>
    </body>
 </html>
